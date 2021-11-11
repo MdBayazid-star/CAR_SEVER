@@ -41,22 +41,34 @@ async function run() {
     const carsCollection = database.collection("cars");
     const usersCollection = database.collection("users");
     const usersOrderCollection = database.collection("usersOrder");
-    // Get Cars
-    app.get("/cars", verifyToken, async (req, res) => {
+    const usersReviewCollection = database.collection("usersReview");
+
+    // Reviews
+    // Get Users Reviews
+    app.get("/usersReview", verifyToken, async (req, res) => {
       const email = req.query.email;
-      const date = req.query.date;
-
-      const query = { email: email, date: date };
-
-      const cursor = carsCollection.find(query);
-      const appointments = await cursor.toArray();
-      res.json(appointments);
+      const query = { email: email };
+      const cursor = usersReviewCollection.find(query);
+      const userOrder = await cursor.toArray();
+      res.json(userOrder);
+    });
+    // Post Users Reviews
+    app.post("/usersReview", async (req, res) => {
+      const userOrder = req.body;
+      const result = await usersReviewCollection.insertOne(userOrder);
+      res.json(result);
     });
     // Post Cars
     app.post("/cars", async (req, res) => {
       const appointment = req.body;
       const result = await carsCollection.insertOne(appointment);
       res.json(result);
+    });
+    // Get Cars
+    app.get("/cars", async (req, res) => {
+      const cursor = carsCollection.find({});
+      const cars = await cursor.toArray();
+      res.send(cars);
     });
     // Get Single Cars
     app.get("/cars/:id", async (req, res) => {
@@ -122,28 +134,28 @@ async function run() {
           .json({ message: "you do not have access to make admin" });
       }
     });
-    // Get User Services
-    app.get("/userOrder", async (req, res) => {
-      const cursor = usersOrderCollection.find({});
-      const services = await cursor.toArray();
-      res.send(services);
+    // Get Users Order By Clients
+    app.get("/usersOrder", verifyToken, async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const cursor = usersOrderCollection.find(query);
+      const userOrder = await cursor.toArray();
+      res.json(userOrder);
     });
-    // Post User Services
-    app.post("/userOrder", async (req, res) => {
-      const newUserService = req.body;
-      const result = await usersOrderCollection.insertOne(newUserService);
-      console.log("got new user", req.body);
-      console.log("added user", result);
+    // Post Users Order By Clients
+    app.post("/usersOrder", async (req, res) => {
+      const userOrder = req.body;
+      const result = await usersOrderCollection.insertOne(userOrder);
       res.json(result);
     });
-    // Get Single Users Services
+    // Get Single Users Services by Admin
     app.get("/userOrder/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const user = await usersOrderCollection.findOne(query);
       res.send(user);
     });
-    // // Delete User Services
+    // // Delete User Services by Admin
     app.delete("/userOrder/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -151,25 +163,25 @@ async function run() {
       res.json(result);
     });
     //Update Users
-    app.put("/userOrder/:id", async (req, res) => {
-      const id = req.params.id;
-      const updatedUser = req.body;
-      const filter = { _id: ObjectId(id) };
-      const options = { upsert: true };
-      const updateDoc = {
-        $set: {
-          name: updatedUser.name,
-          email: updatedUser.email,
-        },
-      };
-      const result = await usersOrderCollection.updateOne(
-        filter,
-        updateDoc,
-        options
-      );
-      console.log("updating", id);
-      res.json(result);
-    });
+    // app.put("/userOrder/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const updatedUser = req.body;
+    //   const filter = { _id: ObjectId(id) };
+    //   const options = { upsert: true };
+    //   const updateDoc = {
+    //     $set: {
+    //       name: updatedUser.name,
+    //       email: updatedUser.email,
+    //     },
+    //   };
+    //   const result = await usersOrderCollection.updateOne(
+    //     filter,
+    //     updateDoc,
+    //     options
+    //   );
+    //   console.log("updating", id);
+    //   res.json(result);
+    // });
   } finally {
     // await client.close();
   }

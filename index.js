@@ -134,9 +134,7 @@ async function run() {
     });
     // Get Users Order By Clients
     app.get("/usersOrder", verifyToken, async (req, res) => {
-      const email = req.query.email;
-      const query = { email: email };
-      const cursor = usersOrderCollection.find(query);
+      const cursor = usersOrderCollection.find({});
       const userOrder = await cursor.toArray();
       res.json(userOrder);
     });
@@ -147,14 +145,14 @@ async function run() {
       res.json(result);
     });
     // Get Single Users Services by Admin
-    app.get("/userOrder/:id", async (req, res) => {
+    app.get("/usersOrder/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const user = await usersOrderCollection.findOne(query);
       res.send(user);
     });
     // // Delete User Services by Admin
-    app.delete("/userOrder/:id", async (req, res) => {
+    app.delete("/usersOrder/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await usersOrderCollection.deleteOne(query);

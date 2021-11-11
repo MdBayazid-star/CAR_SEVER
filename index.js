@@ -41,7 +41,7 @@ async function run() {
     const carsCollection = database.collection("cars");
     const usersCollection = database.collection("users");
     const usersOrderCollection = database.collection("usersOrder");
-
+    // Get Cars
     app.get("/cars", verifyToken, async (req, res) => {
       const email = req.query.email;
       const date = req.query.date;
@@ -52,13 +52,26 @@ async function run() {
       const appointments = await cursor.toArray();
       res.json(appointments);
     });
-
+    // Post Cars
     app.post("/cars", async (req, res) => {
       const appointment = req.body;
       const result = await carsCollection.insertOne(appointment);
       res.json(result);
     });
-
+    // Get Single Cars
+    app.get("/cars/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const user = await carsCollection.findOne(query);
+      res.send(user);
+    });
+    // // Delete User Services
+    app.delete("/cars/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await carsCollection.deleteOne(query);
+      res.json(result);
+    });
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
@@ -88,6 +101,26 @@ async function run() {
         options
       );
       res.json(result);
+    });
+    // Make Admin
+    app.put("/users/admin", verifyToken, async (req, res) => {
+      const user = req.body;
+      const requester = req.decodedEmail;
+      if (requester) {
+        const requesterAccount = await usersCollection.findOne({
+          email: requester,
+        });
+        if (requesterAccount.role === "admin") {
+          const filter = { email: user.email };
+          const updateDoc = { $set: { role: "admin" } };
+          const result = await usersCollection.updateOne(filter, updateDoc);
+          res.json(result);
+        }
+      } else {
+        res
+          .status(403)
+          .json({ message: "you do not have access to make admin" });
+      }
     });
     // Get User Services
     app.get("/userOrder", async (req, res) => {
@@ -136,26 +169,6 @@ async function run() {
       );
       console.log("updating", id);
       res.json(result);
-    });
-    // Make Admin
-    app.put("/users/admin", verifyToken, async (req, res) => {
-      const user = req.body;
-      const requester = req.decodedEmail;
-      if (requester) {
-        const requesterAccount = await usersCollection.findOne({
-          email: requester,
-        });
-        if (requesterAccount.role === "admin") {
-          const filter = { email: user.email };
-          const updateDoc = { $set: { role: "admin" } };
-          const result = await usersCollection.updateOne(filter, updateDoc);
-          res.json(result);
-        }
-      } else {
-        res
-          .status(403)
-          .json({ message: "you do not have access to make admin" });
-      }
     });
   } finally {
     // await client.close();

@@ -45,12 +45,10 @@ async function run() {
 
     // Reviews
     // Get Users Reviews
-    app.get("/usersReview", verifyToken, async (req, res) => {
-      const email = req.query.email;
-      const query = { email: email };
-      const cursor = usersReviewCollection.find(query);
-      const userOrder = await cursor.toArray();
-      res.json(userOrder);
+    app.get("/usersReview", async (req, res) => {
+      const cursor = usersReviewCollection.find({});
+      const cars = await cursor.toArray();
+      res.send(cars);
     });
     // Post Users Reviews
     app.post("/usersReview", async (req, res) => {

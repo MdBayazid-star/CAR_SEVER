@@ -137,8 +137,8 @@ async function run() {
       const email = req.query.email;
       const query = { email: email };
       const cursor = usersOrderCollection.find({ query });
-      const userOrder = await cursor.toArray();
-      res.json(userOrder);
+      const myOrder = await cursor.toArray();
+      res.json(myOrder);
     });
     // Post Users Order By Clients
     app.post("/usersOrder", async (req, res) => {

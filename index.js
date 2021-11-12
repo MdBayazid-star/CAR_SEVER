@@ -166,26 +166,24 @@ async function run() {
       const result = await usersOrderCollection.deleteOne(query);
       res.json(result);
     });
-    //Update Users
-    // app.put("/usersOrder/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const updatedUser = req.body;
-    //   const filter = { _id: ObjectId(id) };
-    //   const options = { upsert: true };
-    //   const updateDoc = {
-    //     $set: {
-    //       name: updatedUser.name,
-    //       email: updatedUser.email,
-    //     },
-    //   };
-    //   const result = await usersOrderCollection.updateOne(
-    //     filter,
-    //     updateDoc,
-    //     options
-    //   );
-    //   console.log("updating", id);
-    //   res.json(result);
-    // });
+    //Update Users Order Pending
+    app.put("/usersOrder/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          condition: "shipped",
+        },
+      };
+      const result = await usersOrderCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      console.log("updating", id);
+      res.json(result);
+    });
   } finally {
     // await client.close();
   }

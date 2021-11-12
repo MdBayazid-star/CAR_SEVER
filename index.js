@@ -134,7 +134,9 @@ async function run() {
     });
     // Get Users Order By Clients
     app.get("/usersOrder", verifyToken, async (req, res) => {
-      const cursor = usersOrderCollection.find({});
+      const email = req.query.email;
+      const query = { email: email };
+      const cursor = usersOrderCollection.find({ query });
       const userOrder = await cursor.toArray();
       res.json(userOrder);
     });
@@ -159,7 +161,7 @@ async function run() {
       res.json(result);
     });
     //Update Users
-    // app.put("/userOrder/:id", async (req, res) => {
+    // app.put("/usersOrder/:id", async (req, res) => {
     //   const id = req.params.id;
     //   const updatedUser = req.body;
     //   const filter = { _id: ObjectId(id) };

@@ -136,10 +136,16 @@ async function run() {
     app.get("/usersOrder", verifyToken, async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
-      const cursor = usersOrderCollection.find({ query });
+      const cursor = usersOrderCollection.find(query);
       const myOrder = await cursor.toArray();
       res.json(myOrder);
     });
+    app.get("/usersOrders", async (req, res) => {
+      const cursor = usersOrderCollection.find({});
+      const myOrder = await cursor.toArray();
+      res.json(myOrder);
+    });
+
     // Post Users Order By Clients
     app.post("/usersOrder", async (req, res) => {
       const userOrder = req.body;

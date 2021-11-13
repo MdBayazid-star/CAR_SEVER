@@ -5,27 +5,21 @@ require("dotenv").config();
 const { MongoClient } = require("mongodb");
 const admin = require("firebase-admin");
 const ObjectId = require("mongodb").ObjectId;
-
 const port = process.env.PORT || 5000;
-
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
-
 app.use(cors());
 app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.k5fmm.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
-
 async function verifyToken(req, res, next) {
   if (req.headers?.authorization?.startsWith("Bearer ")) {
     const token = req.headers.authorization.split(" ")[1];
-
     try {
       const decodedUser = await admin.auth().verifyIdToken(token);
       req.decodedEmail = decodedUser.email;
@@ -33,7 +27,6 @@ async function verifyToken(req, res, next) {
   }
   next();
 }
-
 async function run() {
   try {
     await client.connect();
@@ -42,7 +35,6 @@ async function run() {
     const usersCollection = database.collection("users");
     const usersOrderCollection = database.collection("usersOrder");
     const usersReviewCollection = database.collection("usersReview");
-
     // Reviews
     // Get Users Reviews
     app.get("/usersReview", async (req, res) => {
@@ -92,14 +84,14 @@ async function run() {
       }
       res.json({ admin: isAdmin });
     });
-
+    // post Users
     app.post("/users", async (req, res) => {
       const user = req.body;
       const result = await usersCollection.insertOne(user);
       console.log(result);
       res.json(result);
     });
-
+    // Put Users
     app.put("/users", async (req, res) => {
       const user = req.body;
       const filter = { email: user.email };
@@ -140,12 +132,12 @@ async function run() {
       const myOrder = await cursor.toArray();
       res.json(myOrder);
     });
+    // Get Users Order By Admin
     app.get("/usersOrders", async (req, res) => {
       const cursor = usersOrderCollection.find({});
       const myOrder = await cursor.toArray();
       res.json(myOrder);
     });
-
     // Post Users Order By Clients
     app.post("/usersOrder", async (req, res) => {
       const userOrder = req.body;
@@ -188,13 +180,10 @@ async function run() {
     // await client.close();
   }
 }
-
 run().catch(console.dir);
-
 app.get("/", (req, res) => {
   res.send("Cars-2021");
 });
-
 app.listen(port, () => {
   console.log(`listening at ${port}`);
 });
